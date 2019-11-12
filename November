@@ -1,0 +1,188 @@
+
+function json_ld_location_schema(){
+$ECP_site_logo = get_option('ECP_site_logo');
+        if ($ECP_site_logo) {
+          if (is_numeric ($ECP_site_logo)) {
+            $logo_attachment_url = wp_get_attachment_image_src($ECP_site_logo, 'large');
+          } else {
+            $logo_attachment_url = $ECP_site_logo;
+          }
+        }
+
+$args = array('post_status' => 'publish','posts_per_page' => 1, 'post_type' => 'location','order' => 'ASC','orderby' => 'menu_order');
+	$query = new WP_Query($args);
+	if ( $query->have_posts() ) :
+		while ( $query->have_posts() ) : $query->the_post();
+		global $post;
+		$contactdetails = get_post_meta($post->ID, 'ECP_contactdetails', true);
+		if ($contactdetails) {
+			foreach ($contactdetails as $value) {
+				$contactdetails_type = $value[ECP_contactdetails_type];
+				$contactdetails_entry = $value[ECP_contactdetails_entry];
+				if ($contactdetails_type == 'phone') {
+					$location_phone = $contactdetails_entry;
+				}
+			}
+		}
+		endwhile;
+	wp_reset_postdata();
+    endif;
+
+	if ($accessibility_phone != '') {
+		$phone = $accessibility_phone;
+	} else {
+		$phone = $location_phone;
+	}
+	if (! $label) $label = $phone;
+
+$args = array('post_status' => 'publish','posts_per_page' => -1, 'post_type' => 'location','order' => 'ASC','orderby' => 'menu_order');
+	$query = new WP_Query($args);
+	if ( $query->have_posts() ) :
+		while ( $query->have_posts() ) : $query->the_post();
+		global $post;
+
+		$location_address_street = get_post_meta($post->ID, 'ECP_address_street', true);
+		$location_address_city = get_post_meta($post->ID, 'ECP_address_city', true);
+		$location_address_state = get_post_meta($post->ID, 'ECP_address_state', true);
+		$location_address_zip = get_post_meta($post->ID, 'ECP_address_zip', true);
+		$location_address_country = get_post_meta($post, 'ECP_country', true );
+		$location_longitude = get_post_meta($post, 'ECP_longitude', true );
+		$location_latitude = get_post_meta($post, 'ECP_latitude', true );
+		$location_facebook = get_post_meta($post, 'ECP_facebook_page_id', true );
+		 
+?>
+<script type='application/ld+json'> 
+ {
+  "@context": "http://www.schema.org",
+  "@type": "LocalBusiness",
+  "name": "<?php bloginfo('name'); ?>",
+  "url": "<?php echo get_site_url(); ?>",
+  "logo": "<?php echo''.$logo_attachment_url.''; ?>",
+  "image": "<?php echo''.$logo_attachment_url.''; ?>",
+  "priceRange" : "$000 - $300",
+  "telephone" : "<?php echo''.$phone;.''; ?>",
+   <?php if ( $location_facebook ) : ?>"sameAs" : [ "<?php echo''.$location_facebook.''; ?>"],<?php endif; ?>
+  "description": "Local Famliy Eye Clinic & Contact Lens supplier in <?php echo''.$location_address_city.''; ?>, <?php echo''.$location_address_state.''; ?>, <?php echo''.$location_address_zip.''; ?>. Call <?php echo''.$phone.''; ?>",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "<?php echo''.$location_address_street.''; ?>",
+    "addressLocality": "<?php echo''.$location_address_city.''; ?>",
+    "addressRegion": "<?php echo''.$location_address_state.''; ?>",
+    "postalCode": "<?php echo''.$location_address_zip.''; ?>",
+    "addressCountry": "<?php echo''.$location_address_country.''; ?>"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "<?php echo''.$location_latitude.''; ?>",
+    "longitude": "<?php echo''.$location_longitude.''; ?>"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "<?php echo''.$phone.''; ?>",
+    "contactType": "customer support"
+  }
+}
+</script>
+<script type='application/ld+json'> 
+{
+  "@context": "http://www.schema.org",
+  "@type": "MedicalBusiness",
+  "name": "<?php bloginfo('name'); ?>",
+  "url": "<?php echo get_site_url(); ?>",
+  "logo": "<?php echo''.$logo_attachment_url.''; ?>",
+  "image": "<?php echo''.$logo_attachment_url.''; ?>",
+  "priceRange" : "$000 - $300",
+  "telephone" : "<?php echo $phone; ?><?php echo''..''; ?>",
+  <?php if ( $location_facebook ) : ?>"sameAs" : [ "<?php echo''.$location_facebook.''; ?>"],<?php endif; ?>	
+  "description": "Local Eye Clinic and Vision Center in <?php echo $location_address_city; ?><?php echo''..''; ?>, <?php echo''.$location_address_state.''; ?>, <?php echo''.$location_address_zip.''; ?>. Call <?php echo''.$phone.''; ?>",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "<?php echo''.$location_address_street.''; ?>",
+    "addressLocality": "<?php echo''.$location_address_city.''; ?>",
+    "addressRegion": "<?php echo''.$location_address_state.''; ?>",
+    "postalCode": "<?php echo''.$location_address_zip.''; ?>",
+    "addressCountry": "<?php echo''.$location_address_country.''; ?>"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+   "latitude": "<?php echo''.$location_latitude.''; ?>",
+    "longitude": "<?php echo''.$location_longitude.''; ?>"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "<?php echo''.$phone.''; ?>",
+    "contactType": "customer support"
+  }
+}
+</script>
+<script type='application/ld+json'> 
+{
+  "@context": "http://www.schema.org",
+  "@type": "Optician",
+  "name": "<?php bloginfo('name'); ?>",
+  "url": "<?php echo get_site_url(); ?>",
+  "logo": "<?php echo''.$logo_attachment_url.''; ?>",
+  "image": "<?php echo''.$logo_attachment_url.''; ?>",
+  "priceRange" : "$000 - $300",
+  "telephone" : "<?php echo''.$phone.''; ?>",
+<?php if ( $location_facebook ) : ?>"sameAs" : [ "<?php echo''.$location_facebook.''; ?>"],<?php endif; ?>
+  "description": "Eye Clinic & Contact Lens supplier, Eye Exams and Treatment of Dry Eye & Allergies, in <?php echo''.$location_address_city.''; ?>, <?php echo''.$location_address_state;.''; ?>, <?php echo''.$location_address_zip.''; ?>. Call <?php echo''.$phone.''; ?>",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "<?php echo''.$location_address_street.''; ?>",
+    "addressLocality": "<?php echo''.$location_address_city.''; ?>",
+    "addressRegion": "<?php echo''.$location_address_state.''; ?>",
+    "postalCode": "<?php echo''.$location_address_zip.''; ?>",
+    "addressCountry": "<?php echo''.$location_address_country.''; ?>"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+   "latitude": "<?php echo''.$location_latitude.''; ?>",
+    "longitude": "<?php echo''.$location_longitude.''; ?>"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "<?php echo''.$phone.''; ?>",
+    "contactType": "customer support"
+  }
+}
+ </script>
+<?php
+endwhile;
+endif;
+wp_reset_postdata();
+};
+add_action('wp_footer', 'json_ld_location_schema');
+
+
+function json_ld_website_schema(){
+?>
+<script type="application/ld+json">
+{ 
+  "@context": "http://schema.org", 
+  "@type": "WebSite", 
+  "url": "<?php echo get_site_url(); ?>", 
+  "name": "<?php bloginfo('name'); ?>",
+  "description": "Local Eye Clinic, Optometrist & Contact Lenses Supplier",
+  "publisher": "<?php bloginfo('name'); ?>"
+ }
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "url": "<?php echo get_site_url(); ?>",
+  "name": "<?php bloginfo('name'); ?>"
+}
+</script>	
+<script type="application/ld+json">
+{
+        "@context": "http://schema.org/",
+        "@type": "MedicalSpecialty",
+        "description":"Optometric",
+        "name":"<?php bloginfo('name'); ?>"
+}
+</script>
+<?php
+};
+add_action('wp_footer', 'json_ld_website_schema');
