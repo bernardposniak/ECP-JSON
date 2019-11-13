@@ -1,0 +1,97 @@
+
+
+/********************************************
+Automated Footer Address
+********************************************/
+
+function automated_footer_address() {
+
+        $args = array('post_status' => 'publish','posts_per_page' => 1, 'post_type' => 'location','order' => 'ASC','orderby' => 'menu_order');
+	$query = new WP_Query($args);
+	if ( $query->have_posts() ) :
+		while ( $query->have_posts() ) : $query->the_post();
+		global $post;
+		$contactdetails = get_post_meta($post->ID, 'ECP_contactdetails', true);
+		if ($contactdetails) {
+			foreach ($contactdetails as $value) {
+				$contactdetails_type = $value[ECP_contactdetails_type];
+				$contactdetails_entry = $value[ECP_contactdetails_entry];
+				if ($contactdetails_type == 'phone') {
+					$location_phone = $contactdetails_entry;
+				}
+			}
+		}
+		endwhile;
+	wp_reset_postdata();
+    endif;
+        if ($accessibility_phone != '') {
+		$phone = $accessibility_phone;
+	} else {
+		$phone = $location_phone;
+	}
+	if (! $label) $label = $phone;
+
+	$args = array('post_status' => 'publish','posts_per_page' => -1, 'post_type' => 'location','order' => 'ASC','orderby' => 'menu_order');
+	$query = new WP_Query($args);
+	if ( $query->have_posts() ) :
+		while ( $query->have_posts() ) : $query->the_post();
+		global $post;
+
+		$location_address_street = get_post_meta($post->ID, 'ECP_address_street', true);
+		$location_address_city = get_post_meta($post->ID, 'ECP_address_city', true);
+		$location_address_state = get_post_meta($post->ID, 'ECP_address_state', true);
+		$location_address_zip = get_post_meta($post->ID, 'ECP_address_zip', true);
+		$location_address_country = get_post_meta($post, 'ECP_country', true );
+		$location_longitude = get_post_meta($post, 'ECP_longitude', true );
+		$location_latitude = get_post_meta($post, 'ECP_latitude', true );
+		$location_facebook = get_post_meta($post, 'ECP_facebook_page_id', true );
+
+	$element_styles = css_generator(array(
+		'.ecp-footer-address.ecp-instance-'.$instance=> array(
+			'text_align'				=> $align,
+			'color'						=> $text_color,
+			'text_size'					=> $text_size,
+		),
+		'.ecp-footer-address.ecp-instance-'.$instance.' a' => array(
+			'color'						=> $text_color,
+		),
+		'body.ecp-breakpoint-small .ecp-footer-address.ecp-instance-'.$instance=> array(
+			'text_align'				=> $align_responsive_small,
+			'text_size'					=> $text_size_responsive_small,
+		),
+		'body.ecp-breakpoint-medium .ecp-footer-address.ecp-instance-'.$instance=> array(
+			'text_align'				=> $align_responsive_medium,
+			'text_size'					=> $text_size_responsive_medium,
+		),
+	));
+
+	?>
+	<style><?php echo $element_styles; ?></style>
+
+ <div class="ecp-footer-address ecp-instance-<?php echo $instance; ?> <?php echo ($orientation ? 'ecp-footer-address-orientation-'.$orientation : ''); ?>" >
+
+    <?php echo''.$location_address_street.''; ?>",
+    "addressLocality": "<?php echo''.$location_address_city.''; ?>",
+    "addressRegion": "<?php echo''.$location_address_state.''; ?>",
+    "postalCode": "<?php echo''.$location_address_zip.''; ?>
+
+
+		<span class="ecp-footer-address-line"><strong><?php bloginfo('name'); ?></strong></span>
+		<span class="ecp-footer-address-line ecp-footer-address-locatedat"> -  Located at </span>
+		<span class="ecp-footer-address-line">
+		<?php echo''.$location_address_street.''; ?>
+        <?php echo ($orientation != 'vertical' ? ',' : ''); ?> <span class="ecp-footer-address-line"><?php echo''.$location_address_city.''; ?></span>
+        <?php echo ($orientation != 'vertical' ? ',' : ''); ?> <?php echo''.$location_address_state.''; ?>
+        <?php echo ($orientation != 'vertical' ? ',' : ''); ?> <?php echo''.$location_address_zip.''; ?>
+        <?php echo ($orientation != 'vertical' ? '.' : ''); ?>
+		</span>
+		<span class="ecp-footer-address-line"> Phone: <a href="tel:<?php echo''.$phone.''; ?>"><?php echo''.$phone.''; ?></span></a>
+                <?php echo ($orientation != 'vertical' ? '.' : ''); ?></span>
+		<span class="ecp-footer-address-line"><a href="<?php echo get_site_url(); ?>" target="_blank" rel="nofollow"><?php echo get_site_url(); ?></a></span>
+
+ </div>
+
+<?php
+
+}
+add_shortcode('footer_address', 'automated_footer_address');
